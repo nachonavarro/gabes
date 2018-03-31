@@ -18,27 +18,27 @@ doclink = """
 Documentation
 -------------
 
-The full documentation is at http://pygarbled.rtfd.org."""
+The full documentation is at http://gabes.rtfd.org."""
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 
 setup(
-    name='pygarbled',
+    name='gabes',
     version='0.1.0',
     description='A pythonic library to use Garbled Circuits',
     long_description=readme + '\n\n' + doclink + '\n\n' + history,
     author='Ignacio Navarro',
     author_email='nachonavarroasv@gmail.com',
-    url='https://github.com/nachonavarro/pygarbled',
+    url='https://github.com/nachonavarro/gabes',
     packages=[
-        'pygarbled',
+        'gabes',
     ],
-    package_dir={'pygarbled': 'pygarbled'},
+    package_dir={'gabes': 'gabes'},
     include_package_data=True,
     install_requires=[
     ],
     license='MIT',
     zip_safe=False,
-    keywords='pygarbled',
+    keywords='gabes',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',

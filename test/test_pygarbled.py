@@ -1,8 +1,8 @@
 """
-Tests for `pygarbled` module.
+Tests for `gabes` module.
 """
 import pytest
-from pygarbled import pygarbled
+from gabes import gabes
 
 
 class TestPygarbled(object):

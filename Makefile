@@ -24,7 +24,7 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 lint:
-	flake8 pygarbled test
+	flake8 gabes test
 
 test:
 	py.test
@@ -33,15 +33,15 @@ test-all:
 	tox
 
 coverage:
-	coverage run --source pygarbled setup.py test
+	coverage run --source gabes setup.py test
 	coverage report -m
 	coverage html
 	open htmlcov/index.html
 
 docs:
-	rm -f docs/pygarbled.rst
+	rm -f docs/gabes.rst
 	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ pygarbled
+	sphinx-apidoc -o docs/ gabes
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	open docs/_build/html/index.html

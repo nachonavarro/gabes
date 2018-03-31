@@ -4,10 +4,10 @@ Installation
 
 At the command line either via easy_install or pip::
 
-    $ easy_install pygarbled
-    $ pip install pygarbled
+    $ easy_install gabes
+    $ pip install gabes
 
 Or, if you have virtualenvwrapper installed::
 
-    $ mkvirtualenv pygarbled
-    $ pip install pygarbled
+    $ mkvirtualenv gabes
+    $ pip install gabes

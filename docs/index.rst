@@ -20,8 +20,8 @@ Contents:
 Feedback
 ========
 
-If you have any suggestions or questions about **pygarbled** feel free to email me
+If you have any suggestions or questions about **gabes** feel free to email me
 at nachonavarroasv@gmail.com.
 
-If you encounter any errors or problems with **pygarbled**, please let me know!
-Open an Issue at the GitHub http://github.com/nachonavarro/pygarbled main repository.
+If you encounter any errors or problems with **gabes**, please let me know!
+Open an Issue at the GitHub http://github.com/nachonavarro/gabes main repository.
