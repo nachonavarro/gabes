@@ -2,8 +2,6 @@
 Tests for `gabes` module.
 """
 import pytest
-from gabes import gabes
-
 
 class TestPygarbled(object):
 
