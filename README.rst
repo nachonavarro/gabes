@@ -1,5 +1,5 @@
 =============================
-gabes: Secure Two-Party Computation in Python using Garbled Circuits
+Gabes: Garbled Circuits in Python
 =============================
 
 .. image:: https://badge.fury.io/py/gabes.svg
@@ -8,7 +8,7 @@ gabes: Secure Two-Party Computation in Python using Garbled Circuits
 .. image:: https://travis-ci.org/nachonavarro/gabes.svg?branch=master
     :target: https://travis-ci.org/nachonavarro/gabes
 
-A pythonic library to use Garbled Circuits
+A Python library to use Garbled Circuits
 
 
 Features
