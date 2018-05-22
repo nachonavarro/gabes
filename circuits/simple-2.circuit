@@ -1,0 +1,1 @@
+((A AND B) XOR (C XOR D)) AND (E XOR F)
