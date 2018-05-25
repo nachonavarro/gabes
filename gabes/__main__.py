@@ -1,3 +1,15 @@
+import argparse
+from garbler import garbler
+from evaluator import evaluator
+
+def main(args):
+	address = args.address
+	circuit_file = args.circuit
+	if args.garbler:
+		garbler(address, circuit_file)
+	elif args.evaluator:
+		evaluator(address, circuit_file)
+
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Program to garble and evaluate a circuit.',
 									 epilog='Example usage: gabes -g -c Desktop/test.circuit -a 192.08.12.33:1932')
