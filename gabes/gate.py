@@ -1,4 +1,4 @@
-from gabes.wire import Wire
+from wire import Wire
 from cryptography.fernet import Fernet
 from Crypto.Random.random import shuffle
 
@@ -20,6 +20,9 @@ class Gate(object):
             self.left_wire   = Wire()
             self.right_wire  = Wire()
             self.output_wire = Wire()
+
+    def __str__(self):
+        return self.gate_type
 
     def garble_gate(self):
         for left_label in self.left_wire.labels():
