@@ -1,12 +1,19 @@
-from gabes.label import Label
+from label import Label
 
 class Wire(object):
     """The :class:`Wire` object holds two labels representing
     *True* and *False*.
     """
-    def __init__(self):
+    def __init__(self, identifier=None):
+        self.identifier  = identifier
         self.false_label = Label(False)
         self.true_label  = Label(True)
+
+    def __str__(self):
+        if self.identifier:
+            return "Wire {}".format(self.identifier)
+        else:
+            return "Unidentified Wire"
 
     def labels(self):
         for label in (self.false_label, self.true_label):
