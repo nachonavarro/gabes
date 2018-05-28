@@ -8,7 +8,7 @@ def main(args):
 	if args.garbler:
 		garbler(address, circuit_file)
 	elif args.evaluator:
-		evaluator(address, circuit_file)
+		evaluator(address)
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Program to garble and evaluate a circuit.',
@@ -16,10 +16,12 @@ if __name__ == '__main__':
 	parser.add_argument('-g', '--garbler', action='store_true', help="Set this flag to become the garbler.")
 	parser.add_argument('-e', '--evaluator', action='store_true', help="Set this flag to become the evaluator.")
 	parser.add_argument('-a', '--address', metavar="ip:port", help="IP address followed by the port number.", required=True)
-	parser.add_argument('-c', '--circuit', metavar="file", help="Path of the file representing the circuit.", required=True)
+	parser.add_argument('-c', '--circuit', metavar="file", help="Path of the file representing the circuit. Only the garbler needs to supply the file.")
 	args = parser.parse_args()
 	if not args.garbler and not args.evaluator:
 		parser.error('Either -g or -e needs to be set.')
 	if args.garbler and args.evaluator:
 		parser.error('Can not be both garbler and evaluator!')
+	if args.garbler and not args.circuit:
+		parser.error('The garbler needs to supply the circuit file.')
 	main(args)
