@@ -38,6 +38,11 @@ setup(
     ],
     license='MIT',
     zip_safe=False,
+    entry_points = {
+        'console_scripts': [
+            'gabes = gabes.__main__:main'
+        ]
+    },
     keywords='gabes',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
