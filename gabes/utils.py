@@ -1,12 +1,27 @@
-from circuit import Circuit
+def ask_for_inputs(identifiers):
 
-def ask_for_inputs(circuit_file):
-	choice = input("Press 1 to input your private inputs for the circuit \none by one or press 2 to input them all at once: ")
-	circuit = Circuit(circuit_file)
-	if choice == '1':
-		inputs = []
-		for label in circuit.get_input_labels():
-			inputs.append(input("Choice for input {}: ".format(label)))
-	elif choice == '2':
-		inputs = list(input("Type in inputs as a bitstring (e.g. 0101101): "))
+	print("To start the protocol please indicate with y/n which wires you supply:")
+	chosen_wires = []
+	for identifier in identifiers:
+		decision = input("Do you supply {}? ".format(identifier))
+		while True:
+			if decision == 'y':
+				chosen_wires.append(identifier)
+				break
+			elif decision == 'n':
+				break
+			else:
+				decision = input("Sorry, didn't recognize that. Indicate with y or n whether you supply {}: ".format(identifier))
+
+	inputs = {}
+	for identifier in chosen_wires:
+		label_choice = input("Choice for {}: ".format(identifier))
+		while True:
+			if label_choice in '01':
+				break
+			else:
+				label_choice = input("Sorry, you must supply either a 0 (indicating false) or a 1 (indicating true) for wire {}: ".format(identifier))
+
+		inputs[identifier] = label_choice
+
 	return inputs
