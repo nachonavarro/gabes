@@ -30,6 +30,9 @@ def sanitize_optimizations(parser):
 	if args.classical:
 		if any([args.point_and_permute, args.grr3, args.free_xor, args.grr2, args.flexor, args.half_gates]):
 			parser.error('Classical garbled circuits is not compatible with any optimization.')
+	if args.point_and_permute:
+		if any([args.classical, args.grr3, args.free_xor, args.grr2, args.flexor, args.half_gates]):
+			parser.error('The -pp flag is for the point-and-permute technique on its own. All successive optimizations include point-and-permute.')
 	if args.free_xor and args.grr2:
 		parser.error('FreeXOR is not compatible with GRR2.')
 	if args.free_xor and args.flexor:
