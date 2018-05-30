@@ -14,14 +14,14 @@ def garbler_ot(client, m0, m1):
 	n, e = public_key.public_numbers().n, public_key.public_numbers().e
 	
 	x0, x1 = [randint(2, n // 2) for _ in range(2)]
-	send_data(client, x0, x1, n, e)
-	v = receive_data(client)[0]
+	send_data(client, [x0, x1, n, e])
+	v = receive_data(client)
 	k0, k1 = [pow((v - x), d, n) for x in (x0, x1)]
 	bytes_m0 = pickle.dumps(m0)
 	bytes_m1 = pickle.dumps(m1)
 	m0 = int.from_bytes(bytes_m0, byteorder='big')
 	m1 = int.from_bytes(bytes_m1, byteorder='big')
-	send_data(client, m0 + k0, m1 + k1, len(bytes_m0), len(bytes_m1))
+	send_data(client, [m0 + k0, m1 + k1, len(bytes_m0), len(bytes_m1)])
 	wait_for_ack(client)
 
 def evaluator_ot(sock, b):
