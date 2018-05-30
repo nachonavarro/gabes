@@ -1,5 +1,6 @@
 import os
 import base64
+import settings
 
 
 class Label(object):
@@ -7,8 +8,8 @@ class Label(object):
 	that will represent either the boolean *False* or *True* for a particular gate.
 	"""
 
-	def __init__(self, represents, pp_bit=None):
-		self.label = os.urandom(32)
+	def __init__(self, represents, label=None, pp_bit=None):
+		self.label = os.urandom(settings.NUM_BYTES)
 		self.represents = represents
 		self.pp_bit = pp_bit
 
@@ -23,6 +24,9 @@ class Label(object):
 
 	def to_base64(self):
 		return base64.urlsafe_b64encode(self.label)
+
+	def to_base32(self):
+		return base64.b32encode(self.label)
 
 	@staticmethod
 	def int_to_bytes(n):

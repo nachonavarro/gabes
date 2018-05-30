@@ -20,7 +20,7 @@ def garbler(args):
 
 def hand_over_wire_identifiers(client, circ):
 	identifiers = [wire.identifier for wire in circ.get_input_wires()]
-	net.send_data(client, *identifiers)
+	net.send_data(client, identifiers)
 	net.wait_for_ack(client)
 	return identifiers
 
@@ -43,7 +43,7 @@ def hand_over_labels(client, circ, garbler_inputs):
 			garbler_ot(client, false_label, true_label)
 
 def learn_output(client, circ):
-	output_label = net.receive_data(client)[0]
+	output_label = net.receive_data(client)
 	output_gate  = circ.tree.name
 	output = output_label.to_base64() == output_gate.output_wire.true_label.to_base64()
 	net.send_data(client, output)
