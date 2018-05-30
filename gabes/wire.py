@@ -9,13 +9,14 @@ class Wire(object):
     """
     def __init__(self, identifier=None):
         self.identifier  = identifier
-        if settings.POINT_AND_PERMUTE:
-            b = random.choice([True, False])
-            self.false_label = Label(False, pp_bit=b)
-            self.true_label  = Label(True, pp_bit=not b)
-        else:
+        if settings.CLASSICAL:
             self.false_label = Label(False)
             self.true_label  = Label(True)
+        else:
+            b = random.choice([True, False])
+            b = True
+            self.false_label = Label(False, pp_bit=b)
+            self.true_label  = Label(True, pp_bit=not b)
 
     def __str__(self):
         if self.identifier:
