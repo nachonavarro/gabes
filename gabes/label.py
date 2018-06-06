@@ -1,6 +1,6 @@
 import os
 import base64
-import settings
+import gabes.settings as settings
 
 
 class Label(object):

@@ -1,3 +1,9 @@
+"""
+gabes.network
+---------------------------
+Test test etst
+"""
+
 import socket
 import pickle
 import time
@@ -14,7 +20,6 @@ def connect_garbler(address):
 
 def connect_evaluator(address):
     ip, port = address.split(':')
-    print("Welcome, evaluator. Waiting for the garbler...", flush=True)
     while True:
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

@@ -1,10 +1,10 @@
-import network as net
+import gabes.network as net
 import time
 import copy
 
-from circuit import Circuit
-from utils import ask_for_inputs
-from ot import garbler_ot
+from gabes.circuit import Circuit
+from gabes.utils import ask_for_inputs
+from gabes.ot import garbler_ot
 
 def garbler(args):
 	print("Welcome, garbler. Waiting for the evaluator...")

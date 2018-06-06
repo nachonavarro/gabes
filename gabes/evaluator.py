@@ -1,9 +1,9 @@
-import network as net
+import gabes.network as net
 import time
 
-from ot import evaluator_ot
-from utils import ask_for_inputs
-from circuit import Circuit
+from gabes.ot import evaluator_ot
+from gabes.utils import ask_for_inputs
+from gabes.circuit import Circuit
 
 def evaluator(args):
 	sock   = net.connect_evaluator(args.address)

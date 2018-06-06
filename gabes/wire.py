@@ -1,7 +1,8 @@
-import settings
+import gabes.settings as settings
 import random
 
-from label import Label
+from gabes.utils import xor, get_last_bit
+from gabes.label import Label
 
 class Wire(object):
     """The :class:`Wire` object holds two labels representing
@@ -14,9 +15,10 @@ class Wire(object):
             self.true_label  = Label(True)
         else:
             b = random.choice([True, False])
-            b = True
             self.false_label = Label(False, pp_bit=b)
             self.true_label  = Label(True, pp_bit=not b)
+        if settings.FREE_XOR or settings.HALF_GATES:
+            self.true_label.label = xor(self.false_label.label, settings.R)
 
     def __str__(self):
         if self.identifier:

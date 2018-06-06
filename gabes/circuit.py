@@ -1,10 +1,24 @@
+"""
+
+gabes.circuit
+~~~~~~~~~~~~~~~~~~~
+
+This module implements the :class:`Circuit` object which is in charge of maintaining
+the tree hierarchy for the circuit. This includes handling all the gates in the
+circuit as well as keeping track of global parameters (for instance R in FreeXOR).
+It also parses the .circuit file into the tree via the :method:build_tree.
+
+"""
+
 import copy
+import os
+import gabes.settings as settings
 
 from anytree import Node, RenderTree, PostOrderIter, LevelOrderGroupIter, PreOrderIter
 from itertools import takewhile, dropwhile
-from gate import Gate
-from wire import Wire
-
+from gabes.gate import Gate
+from gabes.wire import Wire
+from gabes.utils import get_last_bit
 
 class Circuit(object):
 	"""The :class:`Circuit` object holds all the gates and wires
@@ -13,6 +27,11 @@ class Circuit(object):
 	"""
 
 	def __init__(self, file):
+		if settings.FREE_XOR or settings.HALF_GATES:
+			while True:
+				settings.R = os.urandom(settings.NUM_BYTES)
+				if get_last_bit(settings.R):
+					break
 		self.tree = self.build_tree(file)
 		self.input_wires = None
 
@@ -67,7 +86,7 @@ class Circuit(object):
 			if balance == 0:
 				break
 		left, rest  = expression[1:i], expression[i + 1: -1]
-		gate, right = rest.split('(')
+		gate, right = rest.split('(', 1)
 		return left, gate.strip(), right
 
 	def reconstruct(self, labels):

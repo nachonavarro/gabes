@@ -3,8 +3,8 @@ import pickle
 from random import randint
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa
-from network import send_data, receive_data, send_ack, wait_for_ack
-from label import Label
+from gabes.network import send_data, receive_data, send_ack, wait_for_ack
+from gabes.label import Label
 
 def garbler_ot(client, m0, m1):
 	private_key = rsa.generate_private_key(public_exponent=65537, key_size=512, backend=default_backend())
