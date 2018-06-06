@@ -1,5 +1,6 @@
 import pickle
 import gabes.settings as settings
+import gabes.fields as fields
 import hashlib
 
 from gabes.wire import Wire
@@ -137,6 +138,36 @@ class Gate(object):
             else:
                 self.point_and_permute_garble()
 
+    def grr2_garble(self):
+        Ks = self.find_Ks()
+        P0, Q0, P5, P6 = self.interpolate_polynomials(Ks)
+        false_label, true_label = P0, Q0
+        if get_last_bit(false_label) == get_last_bit(true_label):
+            # PP bits are the same, try again with different labels.
+            b = self.left_wire.false_label.pp_bit
+            self.left_wire.false_label = Label(0, pp_bit=b)
+            self.left_wire.true_label  = Label(1, pp_bit=not b)
+            self.grr2_garble()
+            return
+        self.update_output_wire(false_label, true_label)
+        self.table.extend([P5, P6])
+
+    def half_gates_garble(self):
+        self.table = [None] * 2
+        H = lambda x: hashlib.sha256(x).digest()
+        r = self.right_wire.false_label.pp_bit
+        entry1 = xor(H(self.right_wire.false_label.label), self.output_wire.false_label.label)
+        entry2 = xor(H(self.right_wire.true_label.label), self.output_wire.false_label.label)
+        if r:
+            entry2 = xor(entry2, settings.R)
+        entry3 = xor(H(self.left_wire.false_label.label), self.output_wire.false_label.label)
+        entry4 = xor(xor(H(self.left_wire.true_label.label), 
+                     self.output_wire.false_label.label), self.right_wire.false_label.label)
+        
+        self.table[r] = entry1
+        self.table[not r] = entry2
+        self.table.extend([entry3, entry4])
+
     def update_output_wire(self, false_label, true_label):
         self.output_wire.false_label.label = false_label
         self.output_wire.true_label.label = true_label
@@ -171,8 +202,46 @@ class Gate(object):
         right.true_label.pp_bit  = not r_pp_bit
         out.false_label.pp_bit = out_pp_bit
         out.true_label.pp_bit = not out_pp_bit
+
+    def find_Ks(self):
+        zero_ciphertext = bytes(settings.NUM_BYTES)
+        l_f_label, l_t_label = self.left_wire.false_label, self.left_wire.true_label
+        r_f_label, r_t_label = self.right_wire.false_label, self.right_wire.true_label
+        if not l_f_label.pp_bit:
+            lefts = (l_f_label, l_t_label)
         else:
-            self.output_wire.false_label.label = output_label
+            lefts = (l_t_label, l_f_label)
+        if not r_f_label.pp_bit:
+            rights = (r_f_label, r_t_label)
+        else:
+            rights = (r_t_label, r_f_label)
+        ka0, ka1 = AESKey(lefts[0].to_base64()), AESKey(lefts[1].to_base64())
+        kb0, kb1 = AESKey(rights[0].to_base64()), AESKey(rights[1].to_base64())
+        Ks = [
+              kb0.decrypt(ka0.decrypt(zero_ciphertext)),
+              kb1.decrypt(ka0.decrypt(zero_ciphertext)),
+              kb0.decrypt(ka1.decrypt(zero_ciphertext)),
+              kb1.decrypt(ka1.decrypt(zero_ciphertext))
+        ]
+        K_f1 = (2 * l_f_label.pp_bit + r_f_label.pp_bit + 1, Ks[2 * l_f_label.pp_bit + r_f_label.pp_bit])
+        K_f2 = (2 * l_f_label.pp_bit + r_t_label.pp_bit + 1, Ks[2 * l_f_label.pp_bit + r_t_label.pp_bit])
+        K_f3 = (2 * l_t_label.pp_bit + r_f_label.pp_bit + 1, Ks[2 * l_t_label.pp_bit + r_f_label.pp_bit])
+        K_t1 = (2 * l_t_label.pp_bit + r_t_label.pp_bit + 1, Ks[2 * l_t_label.pp_bit + r_t_label.pp_bit])
+        return (K_f1, K_f2, K_f3, K_t1)
+
+    def interpolate_polynomials(self, Ks):
+        F = fields.GF(2, settings.NUM_BYTES * 8)
+        K_f1, K_f2, K_f3, K_t1 = Ks
+        X = [fields.to_poly(K_f1[0]), fields.to_poly(K_f2[0]), fields.to_poly(K_f3[0])]
+        Y = [fields.to_poly(K_f1[1], rep='bytes'), fields.to_poly(K_f2[1], rep='bytes'), fields.to_poly(K_f3[1], rep='bytes')]
+        P = fields.interpolate_polynomial(X, Y, F)
+        P5, P6 = F.evaluate_polynomial(P, fields.to_poly(5)), F.evaluate_polynomial(P, fields.to_poly(6))
+        X = [fields.to_poly(K_t1[0]), fields.to_poly(5), fields.to_poly(6)]
+        Y = [fields.to_poly(K_t1[1], rep='bytes'), P5, P6]
+        Q = fields.interpolate_polynomial(X, Y, F)
+        P0, Q0 = F.evaluate_polynomial(P, [0]), F.evaluate_polynomial(Q, [0])
+        P0, Q0 = fields.from_poly(P0), fields.from_poly(Q0)
+        return (P0, Q0, P5, P6)
 
     def ungarble(self, garblers_label, evaluators_label):
         if settings.CLASSICAL:
@@ -252,6 +321,42 @@ class Gate(object):
                 output_label = self.point_and_permute_ungarble(garblers_label, evaluators_label)
         return output_label
 
+    def grr2_ungarble(self, garblers_label, evaluators_label):
+        key1, key2 = AESKey(garblers_label.to_base64()), AESKey(evaluators_label.to_base64())
+        zero_ciphertext = bytes(settings.NUM_BYTES)
+        Ki = key2.decrypt(key1.decrypt(zero_ciphertext))
+        F = fields.GF(2, settings.NUM_BYTES * 8)
+        r = 2 * garblers_label.pp_bit + evaluators_label.pp_bit + 1
+        X = [fields.to_poly(r), fields.to_poly(5), fields.to_poly(6)]
+        Y = [fields.to_poly(Ki, rep='bytes'), self.table[0], self.table[1]]
+        R = fields.interpolate_polynomial(X, Y, F)
+        output_label = Label(0)
+        output_label.represents = None
+        output_label.label = fields.from_poly(F.evaluate_polynomial(R, [0]))
+        output_label.pp_bit = get_last_bit(output_label.label)
+        return output_label
+
+    def half_gates_ungarble(self, garblers_label, evaluators_label):
+        import pdb; pdb.set_trace()
+        br  = evaluators_label.pp_bit
+        gen = hashlib.sha256(garblers_label.label).digest()
+        eva = hashlib.sha256(evaluators_label.label).digest()
+
+        if br:
+            c1 = xor(self.table[3], gen)
+            c1 = xor(c1, evaluators_label.label)
+            c2 = xor(self.table[1], eva)
+        else:
+            c1 = xor(self.table[2], gen)
+            c2 = xor(self.table[0], eva)
+
+        output_label = Label(0)
+        output_label.represents = None
+        output_label.label = xor(c1, c2)
+        output_label.pp_bit = get_last_bit(output_label.label)
+        return output_label
+
+
     def transform_label(self, label, garbler=True):
         pp_bit = label.pp_bit
         key    = AESKey(label.label)
@@ -267,4 +372,19 @@ class Gate(object):
 
     def wires(self):
         return (self.left_wire, self.right_wire, self.output_wire)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
