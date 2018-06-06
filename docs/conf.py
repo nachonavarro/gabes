@@ -26,6 +26,9 @@ import gabes
 
 # -- General configuration -----------------------------------------------------
 
+def setup(app):
+    app.add_stylesheet('css/custom.css')
+
 # If your documentation needs a minimal Sphinx version, state it here.
 #needs_sphinx = '1.0'
 
@@ -140,7 +143,10 @@ html_static_path = ['_static']
 #html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+html_sidebars = { 
+	'**': ['logo.html', 'localtoc.html', 'relations.html', 'searchbox.html'] 
+}
+
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.

@@ -5,20 +5,8 @@
 
 .. include:: ../README.rst
 
-Contents:
-=========
-
-.. toctree::
-   :maxdepth: 2
-
-   installation
-   usage
-   contributing
-   authors
-   history
-
 Feedback
-========
+---------------
 
 If you have any suggestions or questions about **gabes** feel free to email me
 at nachonavarroasv@gmail.com.
