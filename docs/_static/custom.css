@@ -6,3 +6,7 @@ div.note {
 div.document {
 	width: 1059px;
 }
+
+.center {
+	text-align: center;
+}

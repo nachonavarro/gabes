@@ -1,13 +1,8 @@
 """
-gabes.settings
----------------------------
-Test test etst
+This module handles global settings of the package.
 """
 
-
-
 NUM_BYTES = 32
-"""Number of bytes to use when encrypting/decrypting (increase for more security)""" # pylint: disable=W0105
 
 # Optimizations
 CLASSICAL = True

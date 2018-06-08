@@ -5,6 +5,17 @@
 
 .. include:: ../README.rst
 
+
+Interface
+-------------------
+
+Details of functions and classes are given in this section.
+
+.. toctree::
+   :maxdepth: 2
+
+   api
+
 Feedback
 ---------------
 
