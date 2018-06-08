@@ -97,8 +97,8 @@ class Circuit(object):
         """
         is_left_leaf = len(left.split()) == 1
         is_right_leaf = len(right.split()) == 1
-        gate = Gate(gate_type, create_left_wire=is_left_leaf,
-                    create_right_wire=is_right_leaf)
+        gate = Gate(gate_type, create_left=is_left_leaf,
+                    create_right=is_right_leaf)
         if parent:
             node = anytree.Node(gate, parent=parent)
         else:
