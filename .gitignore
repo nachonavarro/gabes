@@ -45,3 +45,4 @@ docs/_build
 
 .DS_Store
 pip-selfcheck.json
+README.html

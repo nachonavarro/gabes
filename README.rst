@@ -90,3 +90,11 @@ Flags
 	  -grr2, --grr2         Set this flag for GRR2 garbled circuits
 	  -fle, --flexor        Set this flag for flexor garbled circuits
 	  -half, --half-gates   Set this flag for half gates garbled circuits
+
+Documentation
+------------------
+
+All the documentation can be found in https://gabes.readthedocs.io/en/latest/
+
+
+
