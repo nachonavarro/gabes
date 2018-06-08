@@ -23,7 +23,7 @@ The classical example is that of two millionaires who wish to find out who is
 richer without revealing their wealth. In that case, `f` becomes the ">" (greater
 than) function, and `x` and `y` are their wealth. 
 
-Gabes implements garbled circuits in Python. The application runs as a command
+**Gabes** implements garbled circuits in Python. The application runs as a command
 line interface but the functions required to run garbled circuits can be used without
 the command line (see gabes).
 

@@ -41,7 +41,7 @@ coverage:
 docs:
 	rm -f docs/gabes.rst
 	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ gabes
+	#sphinx-apidoc -o docs/ gabes
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	open docs/_build/html/index.html
