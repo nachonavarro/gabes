@@ -60,7 +60,7 @@ evaluator.
 Flags
 ----------
 
-.. code-block:: console
+.. code-block::
 
 	usage: gabes [-h] [-g] [-e] [-b bits] [-i identifier [identifier ...]]
 	                   [-c file] -a ip:port [-cl] [-pp] [-grr3] [-free] [-grr2]
