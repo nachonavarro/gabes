@@ -9,6 +9,5 @@ CLASSICAL = True
 POINT_AND_PERMUTE = False
 GRR3 = False
 FREE_XOR = False
-GRR2 = False
 FLEXOR = False
 HALF_GATES = False

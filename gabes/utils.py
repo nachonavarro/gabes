@@ -16,8 +16,8 @@ def ask_for_inputs(identifiers):
         :rtype: dict
 
     """
-    print("To start the protocol please indicate with y/n \
-           which wires you supply:")
+    print('To start the protocol please indicate with y/n '
+          'which wires you supply:')
     chosen_wires = []
     for identifier in identifiers:
         decision = input("Do you supply {}? ".format(identifier))
