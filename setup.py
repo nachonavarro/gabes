@@ -15,9 +15,12 @@ if sys.argv[-1] == 'publish':
 
 readme = open('README.rst').read()
 
+with open('requirements.txt') as fp:
+    install_requires = fp.read()
+
 setup(
     name='gabes',
-    version='0.1.0',
+    version='0.1.1',
     description='A pythonic library to use Garbled Circuits',
     long_description=readme + '\n\n',
     author='Ignacio Navarro',
@@ -28,8 +31,7 @@ setup(
     ],
     package_dir={'gabes': 'gabes'},
     include_package_data=True,
-    install_requires=[
-    ],
+    install_requires=install_requires,
     license='MIT',
     zip_safe=False,
     entry_points = {
