@@ -44,9 +44,10 @@ def garbler(args):
     circ = Circuit(args.circuit)
     print("Circuit created...")
     identifiers = hand_over_wire_identifiers(client, circ)
-    inputs = ask_for_inputs(identifiers)
-    inputs = {'A': '1', 'B': '1', 'C': '1', 'D': '1',
-              'E': '1', 'F': '1', 'G': '1', 'H': '1'}
+    if args.identifiers:
+        inputs = {x: y for x, y in zip(args.identifiers, args.bits)}
+    else:
+        inputs = ask_for_inputs(identifiers)
     hand_over_labels(client, circ, inputs)
     hand_over_cleaned_circuit(client, circ)
     final_output = learn_output(client, circ)
@@ -100,6 +101,10 @@ def hand_over_labels(client, circ, garbler_inputs):
         :param garbler_inputs: the inputs the garbler provides
 
     """
+    identifiers = set(wire.identifier for wire in circ.get_input_wires())
+    if not set(garbler_inputs.keys()).issubset(set(identifiers)):
+        raise ValueError('You have supplied a wire '
+                         'identifier not in the circuit.')
     for wire in circ.get_input_wires():
         if wire.identifier in garbler_inputs:
             chosen_bit = garbler_inputs[wire.identifier]

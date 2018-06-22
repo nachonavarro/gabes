@@ -25,9 +25,10 @@ def evaluator(args):
     print("Welcome, evaluator. Waiting for the garbler...")
     sock = net.connect_evaluator(args.address)
     idents = request_wire_identifiers(sock)
-    inputs = ask_for_inputs(idents)
-    inputs = {'I': '1', 'J': '1', 'K': '1', 'L': '1',
-              'M': '1', 'N': '1', 'O': '1', 'P': '1'}
+    if args.identifiers:
+        inputs = {x: y for x, y in zip(args.identifiers, args.bits)}
+    else:
+        inputs = ask_for_inputs(idents)
     labels = request_labels(sock, idents, inputs)
     circ = request_cleaned_circuit(sock)
     print("Reconstructing circuit...")
@@ -85,6 +86,9 @@ def request_labels(sock, identifiers, evaluator_inputs):
 
     """
     labels = []
+    if not set(evaluator_inputs.keys()).issubset(set(identifiers)):
+        raise ValueError('You have supplied a wire '
+                         'identifier not in the circuit.')
     for identifier in identifiers:
         if identifier in evaluator_inputs:
             chosen_bit = evaluator_inputs[identifier]

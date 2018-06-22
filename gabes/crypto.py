@@ -39,6 +39,7 @@ class AESKey(object):
             b'The winner is...'
 
     """
+
     def __init__(self, key):
         m = hashlib.sha256()
         m.update(key)
