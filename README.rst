@@ -16,7 +16,7 @@ to compute a joint function while keeping their inputs private. More precisely,
 it allows Alice with input `x` and Bob with input `y` to compute a function
 `f(x, y)` without Alice ever knowing `y` and without Bob knowing `x`. The way
 it does so is by first translating `f` to a boolean circuit from which it will
-cleverly obsfucate or **garble** the circuit to allow the computation of `f`
+cleverly obfuscate or **garble** the circuit to allow the computation of `f`
 while keeping the inputs private.
 
 The classical example is that of two millionaires who wish to find out who is
@@ -87,7 +87,6 @@ Flags
 	                        Set this flag to include point-and-permute
 	  -grr3, --grr3         Set this flag for GRR3 garbled circuits
 	  -free, --free-xor     Set this flag for free-xor garbled circuits
-	  -grr2, --grr2         Set this flag for GRR2 garbled circuits
 	  -fle, --flexor        Set this flag for flexor garbled circuits
 	  -half, --half-gates   Set this flag for half gates garbled circuits
 

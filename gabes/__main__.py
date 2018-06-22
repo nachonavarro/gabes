@@ -1,9 +1,10 @@
-# import sys
-# sys.path.append("/Users/nacho/Desktop/gabes")
+import sys
+sys.path.append("/Users/nacho/Desktop/gabes")
+
 import argparse
-import settings
-from garbler import garbler
-from evaluator import evaluator
+import gabes.settings as settings
+from gabes.garbler import garbler
+from gabes.evaluator import evaluator
 
 
 def main(args):
@@ -33,24 +34,18 @@ def sanitize_inputs(parser):
 def sanitize_optimizations(parser):
     args = parser.parse_args()
     if args.classical:
-        if any([args.point_and_permute, args.grr3, args.free_xor, args.grr2,
+        if any([args.point_and_permute, args.grr3, args.free_xor,
                 args.flexor, args.half_gates]):
             parser.error('Classical garbled circuits is not compatible with \
                          any optimization.')
     if args.point_and_permute:
-        if any([args.classical, args.grr3, args.free_xor, args.grr2,
+        if any([args.classical, args.grr3, args.free_xor,
                 args.flexor, args.half_gates]):
             parser.error('The -pp flag is for the point-and-permute \
                           technique on its own. All successive optimizations \
                           include point-and-permute.')
-    if args.free_xor and args.grr2:
-        parser.error('FreeXOR is not compatible with GRR2.')
     if args.free_xor and args.flexor:
         parser.error('FreeXOR is not compatible with FleXOR.')
-    if args.grr3 and args.grr2:
-        parser.error('GRR3 is not compatible with GRR2.')
-    if args.grr2 and args.half_gates:
-        parser.error('GRR2 is not compatible with half gates.')
     if args.flexor and args.half_gates:
         parser.error('FleXOR is not compatible with half gates.')
 
@@ -58,7 +53,6 @@ def sanitize_optimizations(parser):
     settings.POINT_AND_PERMUTE = args.point_and_permute
     settings.GRR3 = args.grr3
     settings.FREE_XOR = args.free_xor
-    settings.GRR2 = args.grr2
     settings.FLEXOR = args.flexor
     settings.HALF_GATES = args.half_gates
 
@@ -100,8 +94,6 @@ if __name__ == '__main__':
                         help="Set this flag for GRR3 garbled circuits")
     parser.add_argument('-free', '--free-xor', action='store_true',
                         help="Set this flag for free-xor garbled circuits")
-    parser.add_argument('-grr2', '--grr2', action='store_true',
-                        help="Set this flag for GRR2 garbled circuits")
     parser.add_argument('-fle', '--flexor', action='store_true',
                         help="Set this flag for flexor garbled circuits")
     parser.add_argument('-half', '--half-gates', action='store_true',
