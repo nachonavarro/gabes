@@ -5,9 +5,9 @@ techniques are implemented.
 
 """
 
+import os
 import pickle
 import gabes.settings as settings
-import gabes.fields as fields
 import hashlib
 
 from gabes.wire import Wire
@@ -64,8 +64,6 @@ class Gate(object):
             self.flexor_garble()
         elif settings.GRR3:
             self.grr3_garble()
-        elif settings.GRR2:
-            self.grr2_garble()
         elif settings.HALF_GATES:
             self.half_gates_garble()
 
@@ -119,17 +117,15 @@ class Gate(object):
                 logic_value = self.evaluate_gate(in1, in2)
                 output_label = self.output_wire.get_label(logic_value)
                 pickled = pickle.dumps(output_label)
-                table_entry = key1.encrypt(key2.encrypt(pickled))
-                left_pp_bit = left_label.pp_bit
-                right_pp_bit = right_label.pp_bit
-                self.table[2 * left_pp_bit + right_pp_bit] = table_entry
+                entry = key1.encrypt(key2.encrypt(pickled))
+                self.table[2 * left_label.pp_bit + right_label.pp_bit] = entry
 
     def grr3_garble(self):
         """
             In this optimization the entry corresponding to the two labels that
             have a false point-and-permute bit is not sent over the network.
             Instead, the output label corresponding to this entry is
-            set to be equal to the decryption of the zero ciphertext. 
+            set to be equal to the decryption of the zero ciphertext.
             Therefore, there is no need to send the entry because it is
             simply the zero ciphertext. The only thing the evaluator
             needs to do is to conclude that if he receives two false
@@ -191,7 +187,7 @@ class Gate(object):
 
     def flexor_garble(self):
         """
-            In this optimizationn *XOR* are garbled with a table size
+            In this optimization *XOR* are garbled with a table size
             of 0, 1, or 2 (hence its name flexible XORs). The innovation
             at the time was that this method is compatible with GRR2.
             The way it accomplishes this is by changing the input wires'
@@ -229,31 +225,8 @@ class Gate(object):
         else:
             if settings.GRR3:
                 self.grr3_garble()
-            elif settings.GRR2:
-                self.grr2_garble()
             else:
                 self.point_and_permute_garble()
-
-    def grr2_garble(self):
-        """
-            In this optimization clever polynomial interpolation
-            is performed. The garbler gives the evaluator some points
-            as part of the table, and the evaluator performs polynomial
-            interpolation to reconstruct the label. For more information
-            see `the paper <https://eprint.iacr.org/2009/314.pdf>`_.
-        """
-        Ks = fields.find_Ks()
-        P0, Q0, P5, P6 = fields.interpolate_polynomials(Ks)
-        false_label, true_label = P0, Q0
-        if get_last_bit(false_label) == get_last_bit(true_label):
-            # PP bits are the same, try again with different labels.
-            b = self.left_wire.false_label.pp_bit
-            self.left_wire.false_label = Label(0, pp_bit=b)
-            self.left_wire.true_label = Label(1, pp_bit=not b)
-            self.grr2_garble()
-            return
-        self.update_output_wire(false_label, true_label)
-        self.table.extend([P5, P6])
 
     def half_gates_garble(self):
         """
@@ -264,25 +237,34 @@ class Gate(object):
             an *AND* gate into two *half gates*. For more information
             see `the paper <https://eprint.iacr.org/2014/756.pdf>`_.
         """
-        def H(x):
-            return hashlib.sha256(x).digest()
-        self.table = [None] * 2
-        r = self.right_wire.false_label.pp_bit
-        entry1 = xor(H(self.right_wire.false_label.label),
-                     self.output_wire.false_label.label)
-        entry2 = xor(H(self.right_wire.true_label.label),
-                     self.output_wire.false_label.label)
-        if r:
-            entry2 = xor(entry2, settings.R)
-        entry3 = xor(H(self.left_wire.false_label.label),
-                     self.output_wire.false_label.label)
-        entry4 = xor(xor(H(self.left_wire.true_label.label),
-                     self.output_wire.false_label.label),
-                     self.right_wire.false_label.label)
+        if self.gate_type == 'AND':
+            def H(x):
+                return hashlib.sha256(x).digest()
+            self.table = [None] * 2
+            p_a = self.left_wire.false_label.pp_bit
+            p_b = self.right_wire.false_label.pp_bit
 
-        self.table[r] = entry1
-        self.table[not r] = entry2
-        self.table.extend([entry3, entry4])
+            # Generator Half Gate
+            entry1 = xor(H(self.left_wire.false_label.label),
+                         H(self.left_wire.true_label.label))
+            if p_b:
+                entry1 = xor(entry1, settings.R)
+            C0 = H(self.left_wire.false_label.label)
+            if p_a:
+                C0 = xor(C0, entry1)
+
+            # Evaluator Half Gate
+            entry2 = xor(H(self.right_wire.false_label.label),
+                         H(self.right_wire.true_label.label))
+            entry2 = xor(entry2, self.left_wire.false_label.label)
+            C0_ = H(self.right_wire.false_label.label)
+            if p_b:
+                C0_ = xor(C0_, xor(entry2, self.left_wire.false_label.label))
+
+            self.table = [entry1, entry2]
+            self.update_output_wire(xor(C0, C0_), xor(xor(C0, C0_), settings.R))
+        else:
+            self.free_xor_garble()
 
     def update_output_wire(self, false_label, true_label):
         """
@@ -357,8 +339,6 @@ class Gate(object):
             output_label = self.flexor_ungarble(g, e)
         elif settings.GRR3:
             output_label = self.grr3_ungarble(g, e)
-        elif settings.GRR2:
-            output_label = self.grr2_ungarble(g, e)
         elif settings.HALF_GATES:
             output_label = self.half_gates_ungarble(g, e)
 
@@ -423,7 +403,9 @@ class Gate(object):
             zero_ciphertext = bytes(settings.NUM_BYTES)
             output_label = Label(0)
             output_label.represents = None
-            output_label.label = key2.decrypt(key1.decrypt(zero_ciphertext))
+            output_label.label = key2.decrypt(key1.decrypt(zero_ciphertext,
+                                                           unpad=False),
+                                              unpad=False)
             output_label.pp_bit = get_last_bit(output_label.label)
         else:
             table_entry = self.table[2 * left_pp_bit + right_pp_bit - 1]
@@ -477,36 +459,8 @@ class Gate(object):
             g, e = garblers_label, evaluators_label
             if settings.GRR3:
                 output_label = self.grr3_ungarble(g, e)
-            elif settings.GRR2:
-                output_label = self.grr2_ungarble(g, e)
             else:
                 output_label = self.point_and_permute_ungarble(g, e)
-        return output_label
-
-    def grr2_ungarble(self, garblers_label, evaluators_label):
-        """
-            Evaluates the table by interpolating the polynomial
-            based on the points he receives and evaluating such polynomial
-            at 0.
-
-            :param garblers_label: the chosen label by the garbler
-            :param evaluators_label: the chosen label by the evaluator
-            :return: the correct output label
-            :rtype: :class:`Label`
-        """
-        key1 = AESKey(garblers_label.to_base64())
-        key2 = AESKey(evaluators_label.to_base64())
-        zero_ciphertext = bytes(settings.NUM_BYTES)
-        Ki = key2.decrypt(key1.decrypt(zero_ciphertext))
-        F = fields.GF(2, settings.NUM_BYTES * 8)
-        r = 2 * garblers_label.pp_bit + evaluators_label.pp_bit + 1
-        X = [fields.to_poly(r), fields.to_poly(5), fields.to_poly(6)]
-        Y = [fields.to_poly(Ki, rep='bytes'), self.table[0], self.table[1]]
-        R = fields.interpolate_polynomial(X, Y, F)
-        output_label = Label(0)
-        output_label.represents = None
-        output_label.label = fields.from_poly(F.evaluate_polynomial(R, [0]))
-        output_label.pp_bit = get_last_bit(output_label.label)
         return output_label
 
     def half_gates_ungarble(self, garblers_label, evaluators_label):
@@ -519,23 +473,22 @@ class Gate(object):
             :return: the correct output label
             :rtype: :class:`Label`
         """
-        br = evaluators_label.pp_bit
-        gen = hashlib.sha256(garblers_label.label).digest()
-        eva = hashlib.sha256(evaluators_label.label).digest()
+        if self.gate_type == 'AND':
+            s_a, s_b = garblers_label.pp_bit, evaluators_label.pp_bit
+            entry1, entry2 = self.table
+            gen = hashlib.sha256(garblers_label.label).digest()
+            eva = hashlib.sha256(evaluators_label.label).digest()
 
-        if br:
-            c1 = xor(self.table[3], gen)
-            c1 = xor(c1, evaluators_label.label)
-            c2 = xor(self.table[1], eva)
+            C_g = xor(gen, entry1) if s_a else gen
+            C_e = xor(eva, xor(entry2, garblers_label.label)) if s_b else eva
+
+            output_label = Label(0)
+            output_label.represents = None
+            output_label.label = xor(C_g, C_e)
+            output_label.pp_bit = get_last_bit(output_label.label)
+            return output_label
         else:
-            c1 = xor(self.table[2], gen)
-            c2 = xor(self.table[0], eva)
-
-        output_label = Label(0)
-        output_label.represents = None
-        output_label.label = xor(c1, c2)
-        output_label.pp_bit = get_last_bit(output_label.label)
-        return output_label
+            return self.free_xor_ungarble(garblers_label, evaluators_label)
 
     def transform_label(self, label, garbler=True):
         """
