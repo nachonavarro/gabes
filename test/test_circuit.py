@@ -10,7 +10,7 @@ from anytree import LevelOrderIter
 
 @pytest.fixture
 def circuit():
-    '''Returns a :class:`Circuit` object instance for simple-3.circuit file'''
+    '''Returns a :class:`Circuit` object instance for simple-2.circuit file'''
     parent = os.getcwd()
     path = os.path.join(parent, 'circuits/simple-2.circuit')
     return Circuit(path)
