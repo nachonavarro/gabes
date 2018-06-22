@@ -20,7 +20,7 @@ with open('requirements.txt') as fp:
 
 setup(
     name='gabes',
-    version='0.1.1',
+    version='0.1.2',
     description='A pythonic library to use Garbled Circuits',
     long_description=readme + '\n\n',
     author='Ignacio Navarro',
