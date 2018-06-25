@@ -20,7 +20,7 @@ with open('requirements.txt') as fp:
 
 setup(
     name='gabes',
-    version='0.1.3',
+    version='0.1.5',
     description='A pythonic library to use Garbled Circuits',
     long_description=readme + '\n\n',
     author='Ignacio Navarro',
@@ -34,10 +34,8 @@ setup(
     install_requires=install_requires,
     license='MIT',
     zip_safe=False,
-    entry_points = {
-        'console_scripts': [
-            'gabes = gabes.__main__:main'
-        ]
+    entry_points={
+        'console_scripts': ['gabes = gabes.__main__:main']
     },
     keywords='gabes',
     classifiers=[

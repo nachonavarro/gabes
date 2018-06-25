@@ -7,13 +7,6 @@ from gabes.garbler import garbler
 from gabes.evaluator import evaluator
 
 
-def main(args):
-    if args.garbler:
-        garbler(args)
-    elif args.evaluator:
-        evaluator(args)
-
-
 def sanitize_inputs(parser):
     args = parser.parse_args()
     if not args.garbler and not args.evaluator:
@@ -33,6 +26,9 @@ def sanitize_inputs(parser):
 
 def sanitize_optimizations(parser):
     args = parser.parse_args()
+    if not any([args.classical, args.point_and_permute, args.grr3, args.free_xor,
+                args.flexor, args.half_gates]):
+        parser.error('Need to specify which optimization to run (or classical otherwise).')
     if args.classical:
         if any([args.point_and_permute, args.grr3, args.free_xor,
                 args.flexor, args.half_gates]):
@@ -57,7 +53,7 @@ def sanitize_optimizations(parser):
     settings.HALF_GATES = args.half_gates
 
 
-if __name__ == '__main__':
+def cli():
     parser = argparse.ArgumentParser(description='Program to garble and \
                                      evaluate a circuit.',
                                      epilog='Example usage: gabes -g -c \
@@ -102,4 +98,16 @@ if __name__ == '__main__':
     sanitize_inputs(parser)
     sanitize_optimizations(parser)
     args = parser.parse_args()
-    main(args)
+    return args
+
+
+def main():
+    args = cli()
+    if args.garbler:
+        garbler(args)
+    elif args.evaluator:
+        evaluator(args)
+
+
+if __name__ == '__main__':
+    main()
