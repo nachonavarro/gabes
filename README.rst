@@ -30,9 +30,8 @@ the command line (see gabes).
 Installation
 ------------------
 
-At the command line either via easy_install or pip::
+At the command line either via pip::
 
-    $ easy_install gabes
     $ pip install gabes
 
 Or, if you have virtualenvwrapper installed::
