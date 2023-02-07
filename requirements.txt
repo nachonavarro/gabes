@@ -2,7 +2,7 @@ wheel>=0.22
 anytree==2.4.3
 asn1crypto==0.24.0
 cffi==1.11.5
-cryptography==2.2.2
+cryptography==39.0.1
 idna==2.6
 mpmath==1.0.0
 pycparser==2.18
